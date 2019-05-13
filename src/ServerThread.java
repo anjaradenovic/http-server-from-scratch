@@ -31,17 +31,6 @@ public class ServerThread implements Runnable {
 
 			String request = in.readLine();
 			System.out.println("SERVER: stiglo od klijenta: " + request);
-			if(request.startsWith("GET")){
-				out.println("stigao GET request");
-			}else if(request.startsWith("POST")){
-				out.println("stigao POST request");
-			}else if(request.startsWith("PUT")){
-				out.println("stigao PUT request");
-			}else if(request.startsWith("DELETE")){
-				out.println("stigao DELETE request");
-			}else{
-				out.println("stigao nepoznat metod");
-			}
 
 			String metod;
 			String verizijaProtokola;
@@ -65,8 +54,47 @@ public class ServerThread implements Runnable {
 			for (String s : listaHedera) {
 				System.out.println(s);
 			}
+
+			switch (metod) {
+				case "GET":
+					System.out.println("stigao GET request");
+					String htmlSadrzaj = "<html><head></head><body><p><b>Hello World!<b></p></body></html>";
+					out.print("HTTP/1.1 200 OK\r\n");
+                    out.print("Content-Length:" + htmlSadrzaj.getBytes().length + "\r\n");
+                    out.print("\r\n");
+                    out.print(htmlSadrzaj);
+                    out.flush();
+
+					break;
+				case "POST":
+					System.out.println("stigao POST request");
+					out.print("HTTP/1.1 200 OK\r\n");
+                    out.print("\r\n");
+
+					break;
+				case "PUT":
+					System.out.println("stigao PUT request");
+					out.print("HTTP/1.1 200 OK\r\n");
+                    out.print("\r\n");
+
+					break;
+				case "DELETE":
+					System.out.println("stigao DELETE request");
+					out.print("HTTP/1.1 200 OK\r\n");
+                    out.print("\r\n");
+
+					break;
+				default:
+					System.out.println("stigao nepoznat metod");
+					out.print("HTTP/1.1 405 Method Not Allowed\r\n");
+                    out.print("\r\n");
+
+					break;
+			}
+
 			System.out.println("zatvaramo konekciju");
-			socket.close();
+
+            socket.close();
 
 		} catch (IOException e) {
 			System.out.println("Connection closed");
