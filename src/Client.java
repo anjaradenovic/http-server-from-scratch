@@ -1,10 +1,8 @@
 import java.io.*;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
 
 public class Client {
 
@@ -15,10 +13,10 @@ public class Client {
         System.out.println("uspostavljena veza sa serverom");
 
         PrintWriter out = new PrintWriter(new OutputStreamWriter(socekt.getOutputStream()), true);
-        InputStream socketInputStream = socekt.getInputStream();
-        BufferedInputStream in = new BufferedInputStream(socketInputStream);
+        BufferedInputStream in = new BufferedInputStream(socekt.getInputStream());
 
         Scanner tastatura = new Scanner(System.in);
+
         String request = tastatura.nextLine();
         out.println(request);
 
@@ -35,19 +33,20 @@ public class Client {
 
         List<String> listaHedera = new ArrayList<>();
 
-        String porukaSrevera = getLine(in);
-        System.out.println("Poruka od servera: " + porukaSrevera);
+        // statusna linija
+        String porukaServera = getLine(in);
+        System.out.println("Poruka od servera: " + porukaServera);
 
-        porukaSrevera = getLine(in);
+        // hederi
+        porukaServera = getLine(in);
 
-        while (!porukaSrevera.equals("")){
-            listaHedera.add(porukaSrevera);
-            porukaSrevera = getLine(in);
+        while (!porukaServera.equals("")){
+            listaHedera.add(porukaServera);
+            porukaServera = getLine(in);
         }
         System.out.println(listaHedera);
 
-        int contentLength = 0;
-
+        int contentLength = 0; // ako je prisutan Content-Length heder pamti se njegova vrednost
         for (String s : listaHedera) {
            if(s.startsWith("Content-Length:")) {
                contentLength = Integer.parseInt(s.split(":")[1].trim());
@@ -55,6 +54,7 @@ public class Client {
            }
         }
 
+        // body
         if(contentLength!=0){
             byte[] buffer = new byte[contentLength];
             int charactersRead = in.read(buffer);
@@ -78,6 +78,7 @@ public class Client {
 
     }
 
+    // ucitava karaktere iz inputStrim-a dok ne dodje \r\n i pravi string
     private String getLine(InputStream inputStream) {
 
         byte[] bytes = new byte[4096];
