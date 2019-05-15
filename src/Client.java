@@ -17,7 +17,7 @@ public class Client {
         PrintWriter out = new PrintWriter(new OutputStreamWriter(socekt.getOutputStream()), true);
         InputStream socketInputStream = socekt.getInputStream();
         BufferedInputStream in = new BufferedInputStream(socketInputStream);
-        // unos sa konzole
+
         Scanner tastatura = new Scanner(System.in);
         String request = tastatura.nextLine();
         out.println(request);
@@ -35,7 +35,6 @@ public class Client {
 
         List<String> listaHedera = new ArrayList<>();
 
-        // cekamo odgovor od servera
         String porukaSrevera = getLine(in);
         System.out.println("Poruka od servera: " + porukaSrevera);
 

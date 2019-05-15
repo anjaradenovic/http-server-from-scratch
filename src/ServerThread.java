@@ -1,9 +1,6 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -27,18 +24,19 @@ public class ServerThread implements Runnable {
 			PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
 			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-			System.out.println("uspostavljena kokenkcija");
+			System.out.println("uspostavljena konekcija");
 
 			String request = in.readLine();
-			System.out.println("SERVER: stiglo od klijenta: " + request);
+			System.out.println("stiglo od klijenta: " + request);
 
 			String metod;
-			String verizijaProtokola;
 			String resurs;
+			String verizijaProtokola;
+
 			StringTokenizer token = new StringTokenizer(request," ");
 			metod = token.nextToken();
-			verizijaProtokola = token.nextToken();
 			resurs = token.nextToken();
+			verizijaProtokola = token.nextToken();
 
 			List<String> listaHedera = new ArrayList<>();
 
@@ -49,7 +47,7 @@ public class ServerThread implements Runnable {
 				linija = in.readLine();
 			}
 
-			System.out.println("stigao je request: " + metod + " sa verzijom protokola: " + verizijaProtokola + " i resursom: " + resurs);
+			System.out.println("stigao je:\n request: " + metod + "\n verzija protokola: " + verizijaProtokola + "\n resurs: " + resurs);
 
 			for (String s : listaHedera) {
 				System.out.println(s);
@@ -58,12 +56,54 @@ public class ServerThread implements Runnable {
 			switch (metod) {
 				case "GET":
 					System.out.println("stigao GET request");
-					String htmlSadrzaj = "<html><head></head><body><p><b>Hello World!<b></p></body></html>";
-					out.print("HTTP/1.1 200 OK\r\n");
-                    out.print("Content-Length:" + htmlSadrzaj.getBytes().length + "\r\n");
-                    out.print("\r\n");
-                    out.print(htmlSadrzaj);
-                    out.flush();
+
+					String nazivStranice ="";
+					boolean filePronadjen = false;
+
+					if (resurs.startsWith("/zdravo")) {
+						String imeOsobe = resurs.replace("/zdravo/","");
+						String projectsHtmlContent = "<html><head></head><body><p><b>Hello " + imeOsobe + "!<b></p></body></html>";
+						out.print("HTTP/1.1 200 OK\r\n");
+						out.print("Content-Length:" + projectsHtmlContent.getBytes().length + "\r\n");
+						out.print("\r\n");
+						out.print(projectsHtmlContent);
+						out.flush();
+					} else if(resurs.endsWith(".html")){
+						nazivStranice = resurs.substring(1);
+						File file = new File("static");
+						File[] files = file.listFiles();
+
+						for (File file1 : files) {
+							if(file1.getName().equals(nazivStranice)){
+								out.print("HTTP/1.1 200 OK\r\n");
+								out.print("Content-Length:" + file1.length() + "\r\n");
+								out.print("\r\n");
+								out.print(new String(Files.readAllBytes(file1.toPath())));
+								out.flush();
+								filePronadjen = true;
+								System.out.println("pronadjen fajl");
+								break;
+							}
+						}
+						if(filePronadjen == false){
+							System.out.println("Fajl nije pronadjen");
+							out.print("HTTP/1.1 404 Not Found\r\n");
+							out.print("\r\n");
+							out.flush();
+						}
+					} else if (resurs.startsWith("/api")) {
+						out.print("HTTP/1.1 200 OK\r\n");
+						String json = "{ \"temperatura\":24, \"vlaznost\":94, \"pritisak\":998 }";
+						out.print("Content-Length:" + json.getBytes().length + "\r\n");
+						out.print("Content-Type: application/json\r\n");
+						out.print("\r\n");
+						out.print(json);
+						out.flush();
+					} else {
+						out.print("HTTP/1.1 404 Not Found\r\n");
+						out.print("\r\n");
+						out.flush();
+					}
 
 					break;
 				case "POST":
@@ -92,7 +132,7 @@ public class ServerThread implements Runnable {
 					break;
 			}
 
-			System.out.println("zatvaramo konekciju");
+			System.out.println("zatvaranje konekcije");
 
             socket.close();
 
