@@ -149,12 +149,14 @@ public class ServerThread implements Runnable {
 		System.out.println("stigao POST request");
 		out.print("HTTP/1.1 200 OK\r\n");
 		out.print("\r\n");
+		out.flush();
 	}
 
 	private void handlePut(PrintWriter out) {
 		System.out.println("stigao PUT request");
 		out.print("HTTP/1.1 200 OK\r\n");
 		out.print("\r\n");
+		out.flush();
 	}
 
 	private void handleDelete(PrintWriter out) {
@@ -167,6 +169,7 @@ public class ServerThread implements Runnable {
 		System.out.println("stigao nepoznat metod");
 		out.print("HTTP/1.1 405 Method Not Allowed\r\n");
 		out.print("\r\n");
+		out.flush();
 	}
 
 }
