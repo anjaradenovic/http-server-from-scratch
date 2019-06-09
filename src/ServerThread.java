@@ -130,7 +130,7 @@ public class ServerThread implements Runnable {
 			// putanja koja vraca predefinisani json
 		} else if (resurs.startsWith("/api")) {
 			out.print("HTTP/1.1 200 OK\r\n");
-			String json = "{ \"temperatura\":24, \"vlaznost\":94, \"pritisak\":998 }";
+			String json = "{ \"temperature\":24, \"humidity\":94, \"pressure\":998 }";
 			out.print("Content-Length:" + json.getBytes().length + "\r\n");
 			out.print("Content-Type: application/json\r\n");
 			out.print("\r\n");
@@ -163,6 +163,7 @@ public class ServerThread implements Runnable {
 		System.out.println("stigao DELETE request");
 		out.print("HTTP/1.1 200 OK\r\n");
 		out.print("\r\n");
+		out.flush();
 	}
 
 	private void handleUnknown(PrintWriter out) {
